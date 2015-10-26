@@ -1,5 +1,7 @@
 package lens
 
+import shapeless._, poly._
+
 object TryLensWithSeq extends App {
 
   case class Street(name: String)
@@ -7,7 +9,7 @@ object TryLensWithSeq extends App {
   case class Company(addresses: Seq[Address])
   case class Employee(company: Company)
 
-  val employee = Employee(Company(Seq(Address(Street("aaa street")), Address(Street("bbb street")), Address(Street("bpp street")))))
+  val employee = Employee(Company(List(Address(Street("aaa street")), Address(Street("bbb street")), Address(Street("bpp street")))))
 
   // I want to capitalize the streets start with "b" only
 
@@ -24,4 +26,16 @@ object TryLensWithSeq extends App {
   println(modified)
 
   // FIXME how to make it better?
+
+  object capitalizeStreet extends ->(
+    (s: Street) => {
+      val name = if (s.name.startsWith("b")) s.name.capitalize else s.name
+      Street(name)
+    }
+  )
+
+  val afterCapitalize = everywhere(capitalizeStreet)(employee)
+
+  println(afterCapitalize)
+
 }
